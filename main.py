@@ -8,7 +8,6 @@ import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 from datetime import datetime
 
-
 # --- Console redirector with file logging ---
 class ConsoleRedirector:
     def __init__(self, text_widget, logfile_path):
@@ -17,10 +16,8 @@ class ConsoleRedirector:
 
     def write(self, message):
         if message.strip():
-            # Write to GUI
             self.text_widget.insert(tk.END, message)
             self.text_widget.see(tk.END)
-            # Write to log file
             with open(self.logfile_path, "a", encoding="utf-8") as f:
                 f.write(message)
 
@@ -59,6 +56,7 @@ def download_youtube(url, mode, progressbar, progress_label, console_text, audio
 
             base = os.path.splitext(file_path)[0]
             out_file = f"{base}.{audio_fmt}"
+
             sound = AudioSegment.from_file(file_path)
             sound.export(out_file, format=audio_fmt)
             os.remove(file_path)
@@ -68,11 +66,11 @@ def download_youtube(url, mode, progressbar, progress_label, console_text, audio
             messagebox.showinfo("Done", f"Audio saved to:\n{out_file}")
 
         elif mode == "video":
-            # Choose the container for ffmpeg merging
             merge_format = video_fmt.lower()
-            if merge_format not in ["mp4", "mov", "mkv"]:
+            if merge_format not in ["mp4", "mov", "mkv", "avi"]:
                 merge_format = "mp4"
 
+            # Force AAC audio codec for video
             ydl_opts = {
                 'format': 'bestvideo+bestaudio/best',
                 'outtmpl': os.path.join(downloads_path, '%(title)s.%(ext)s'),
@@ -136,7 +134,6 @@ def toggle_console():
 
 
 def update_dropdowns(*args):
-    """Show audio dropdown only for audio mode, and video dropdown only for video mode."""
     if mode_var.get() == "audio":
         audio_frame.pack(pady=3)
         video_frame.pack_forget()
@@ -148,7 +145,7 @@ def update_dropdowns(*args):
 # --- Main Window ---
 root = tk.Tk()
 root.title("Vanilla PyDown")
-root.geometry("480x520")
+root.geometry("480x540")
 root.resizable(False, False)
 root.configure(bg="#fdf6f0")
 
@@ -171,18 +168,20 @@ mode_frame.pack(pady=5)
 ttk.Radiobutton(mode_frame, text="🎵 Audio", variable=mode_var, value="audio").grid(row=0, column=0, padx=15)
 ttk.Radiobutton(mode_frame, text="🎬 Video", variable=mode_var, value="video").grid(row=0, column=1, padx=15)
 
-# Audio format dropdown (mp3, wav, ogg)
+# Audio formats (mp3, wav, ogg, flac, opus)
 audio_fmt_var = tk.StringVar(value="mp3")
 audio_frame = ttk.Frame(root)
 audio_frame.pack(pady=3)
 ttk.Label(audio_frame, text="Audio format:").grid(row=0, column=0, padx=5)
-ttk.Combobox(audio_frame, textvariable=audio_fmt_var, values=["mp3", "wav", "ogg"], width=6, state="readonly").grid(row=0, column=1)
+ttk.Combobox(audio_frame, textvariable=audio_fmt_var, values=["mp3", "wav", "ogg", "flac", "opus"],
+             width=8, state="readonly").grid(row=0, column=1)
 
-# Video format dropdown (mp4, mov, mkv)
+# Video formats (mp4, mov, mkv, avi)
 video_fmt_var = tk.StringVar(value="mp4")
 video_frame = ttk.Frame(root)
 ttk.Label(video_frame, text="Video format:").grid(row=0, column=0, padx=5)
-ttk.Combobox(video_frame, textvariable=video_fmt_var, values=["mp4", "mov", "mkv"], width=6, state="readonly").grid(row=0, column=1)
+ttk.Combobox(video_frame, textvariable=video_fmt_var, values=["mp4", "mov", "mkv", "avi"],
+             width=8, state="readonly").grid(row=0, column=1)
 
 ttk.Button(root, text="⬇️ Download", command=start_download).pack(pady=12)
 
