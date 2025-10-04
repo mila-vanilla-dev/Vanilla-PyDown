@@ -68,10 +68,15 @@ def download_youtube(url, mode, progressbar, progress_label, console_text, audio
             messagebox.showinfo("Done", f"Audio saved to:\n{out_file}")
 
         elif mode == "video":
+            # Choose the container for ffmpeg merging
+            merge_format = video_fmt.lower()
+            if merge_format not in ["mp4", "mov", "mkv"]:
+                merge_format = "mp4"
+
             ydl_opts = {
                 'format': 'bestvideo+bestaudio/best',
                 'outtmpl': os.path.join(downloads_path, '%(title)s.%(ext)s'),
-                'merge_output_format': 'mp4',
+                'merge_output_format': merge_format,
                 'postprocessor_args': [
                     '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k'
                 ],
@@ -84,11 +89,11 @@ def download_youtube(url, mode, progressbar, progress_label, console_text, audio
                 file_path = ydl.prepare_filename(info)
 
             base = os.path.splitext(file_path)[0]
-            mp4_file = f"{base}.{video_fmt}"
+            final_file = f"{base}.{video_fmt}"
 
             progressbar['value'] = 100
-            progress_label.config(text=f"✅ Saved {video_fmt.upper()}: {mp4_file}")
-            messagebox.showinfo("Done", f"Video saved to:\n{mp4_file}")
+            progress_label.config(text=f"✅ Saved {video_fmt.upper()}: {final_file}")
+            messagebox.showinfo("Done", f"Video saved to:\n{final_file}")
 
         else:
             messagebox.showwarning("Error", "Invalid mode selected.")
@@ -173,11 +178,11 @@ audio_frame.pack(pady=3)
 ttk.Label(audio_frame, text="Audio format:").grid(row=0, column=0, padx=5)
 ttk.Combobox(audio_frame, textvariable=audio_fmt_var, values=["mp3", "wav", "ogg"], width=6, state="readonly").grid(row=0, column=1)
 
-# Video format dropdown (only mp4)
+# Video format dropdown (mp4, mov, mkv)
 video_fmt_var = tk.StringVar(value="mp4")
 video_frame = ttk.Frame(root)
 ttk.Label(video_frame, text="Video format:").grid(row=0, column=0, padx=5)
-ttk.Combobox(video_frame, textvariable=video_fmt_var, values=["mp4"], width=6, state="readonly").grid(row=0, column=1)
+ttk.Combobox(video_frame, textvariable=video_fmt_var, values=["mp4", "mov", "mkv"], width=6, state="readonly").grid(row=0, column=1)
 
 ttk.Button(root, text="⬇️ Download", command=start_download).pack(pady=12)
 
