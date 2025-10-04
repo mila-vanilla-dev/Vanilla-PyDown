@@ -1,3 +1,4 @@
+# Libraries
 import os
 import sys
 import threading
@@ -127,7 +128,7 @@ root.geometry("460x450")
 root.resizable(False, False)
 root.configure(bg="#fdf6f0")
 
-# Fonts
+# Fonts // UPDATE !!
 header_font = ("Segoe Script", 16, "bold")
 normal_font = ("Comic Sans MS", 10)
 small_font = ("Segoe UI", 8)
@@ -168,4 +169,6 @@ sys.stderr = ConsoleRedirector(console_text)
 
 tk.Label(root, text="✨ Files are saved in your Downloads folder ✨", bg="#fdf6f0", font=small_font, fg="#777").pack(side="bottom", pady=6)
 
+# Run
 root.mainloop()
+
