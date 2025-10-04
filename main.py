@@ -142,22 +142,92 @@ def update_dropdowns(*args):
         audio_frame.pack_forget()
 
 
+# --- Button animation logic (added) ---
+def animate_button(widget, base_color="#ffd6e0", hover_color="#ffc1cc", pulse_speed=20):
+    """Creates a soft hover/pulse animation for buttons."""
+    def on_enter(e):
+        widget['style'] = "Hover.TButton"
+
+    def on_leave(e):
+        widget['style'] = "TButton"
+
+    widget.bind("<Enter>", on_enter)
+    widget.bind("<Leave>", on_leave)
+
+
+def pulse_effect(style, base="#ffd6e0", alt="#ffc1cc"):
+    """Soft pulsing background animation on hover."""
+    current = [base, alt]
+    index = 0
+
+    def loop():
+        nonlocal index
+        style.configure("Hover.TButton", background=current[index])
+        index = 1 - index
+        root.after(400, loop)
+    loop()
+
+
 # --- Main Window ---
 root = tk.Tk()
 root.title("Vanilla PyDown")
-root.geometry("480x540")
+root.geometry("500x560")
 root.resizable(False, False)
-root.configure(bg="#fdf6f0")
+root.configure(bg="#fef9f6")
+
+# --- Styling ---
+style = ttk.Style()
+style.theme_use("clam")
+
+# Rounded pastel buttons
+style.configure("TButton",
+                background="#ffd6e0",
+                foreground="#444",
+                font=("Comic Sans MS", 10, "bold"),
+                borderwidth=0,
+                focusthickness=3,
+                focuscolor="none",
+                padding=8)
+style.map("TButton",
+          background=[("active", "#ffc1cc")])
+
+# Hover style
+style.configure("Hover.TButton",
+                background="#ffc1cc",
+                foreground="#333",
+                font=("Comic Sans MS", 10, "bold"))
+
+# Radiobuttons
+style.configure("TRadiobutton",
+                background="#fef9f6",
+                font=("Comic Sans MS", 10))
+
+# Combobox
+style.configure("TCombobox",
+                fieldbackground="#fff",
+                background="#ffeef3",
+                bordercolor="#ffc1cc",
+                lightcolor="#ffc1cc",
+                padding=4)
+
+# Rounded progressbar (pastel)
+style.configure("TProgressbar",
+                thickness=14,
+                troughcolor="#ffeef3",
+                background="#ffb6c1",
+                bordercolor="#ffb6c1",
+                lightcolor="#ffd6e0",
+                darkcolor="#ffd6e0")
 
 # Fonts
-header_font = ("Segoe Script", 16, "bold")
+header_font = ("Segoe Script", 18, "bold")
 normal_font = ("Comic Sans MS", 10)
 small_font = ("Segoe UI", 8)
 
 # --- UI elements ---
-tk.Label(root, text="Vanilla PyDown", font=header_font, bg="#fdf6f0", fg="#444").pack(pady=12)
+tk.Label(root, text="Vanilla PyDown", font=header_font, bg="#fef9f6", fg="#444").pack(pady=12)
 
-url_entry = ttk.Entry(root, width=54)
+url_entry = ttk.Entry(root, width=56)
 url_entry.pack(pady=10)
 url_entry.insert(0, "Paste YouTube link here...")
 
@@ -168,35 +238,41 @@ mode_frame.pack(pady=5)
 ttk.Radiobutton(mode_frame, text="🎵 Audio", variable=mode_var, value="audio").grid(row=0, column=0, padx=15)
 ttk.Radiobutton(mode_frame, text="🎬 Video", variable=mode_var, value="video").grid(row=0, column=1, padx=15)
 
-# Audio formats (mp3, wav, ogg, flac, opus)
+# Audio formats
 audio_fmt_var = tk.StringVar(value="mp3")
 audio_frame = ttk.Frame(root)
 audio_frame.pack(pady=3)
-ttk.Label(audio_frame, text="Audio format:").grid(row=0, column=0, padx=5)
+ttk.Label(audio_frame, text="Audio format:", background="#fef9f6").grid(row=0, column=0, padx=5)
 ttk.Combobox(audio_frame, textvariable=audio_fmt_var, values=["mp3", "wav", "ogg", "flac", "opus"],
              width=8, state="readonly").grid(row=0, column=1)
 
-# Video formats (mp4, mov, mkv, avi)
+# Video formats
 video_fmt_var = tk.StringVar(value="mp4")
 video_frame = ttk.Frame(root)
-ttk.Label(video_frame, text="Video format:").grid(row=0, column=0, padx=5)
+ttk.Label(video_frame, text="Video format:", background="#fef9f6").grid(row=0, column=0, padx=5)
 ttk.Combobox(video_frame, textvariable=video_fmt_var, values=["mp4", "mov", "mkv", "avi"],
              width=8, state="readonly").grid(row=0, column=1)
 
-ttk.Button(root, text="⬇️ Download", command=start_download).pack(pady=12)
+download_button = ttk.Button(root, text="⬇️ Download", command=start_download, style="TButton")
+download_button.pack(pady=14)
+
+# Apply animation
+animate_button(download_button)
+pulse_effect(style)
 
 # Progress bar
-progressbar = ttk.Progressbar(root, orient="horizontal", length=320, mode="determinate")
-progressbar.pack(pady=6)
-progress_label = tk.Label(root, text="", font=normal_font, bg="#fdf6f0", fg="#444")
+progressbar = ttk.Progressbar(root, orient="horizontal", length=340, mode="determinate", style="TProgressbar")
+progressbar.pack(pady=8)
+progress_label = tk.Label(root, text="", font=normal_font, bg="#fef9f6", fg="#444")
 progress_label.pack(pady=4)
 
 # Console toggle
-console_button = ttk.Button(root, text="📜 See Console", command=toggle_console)
+console_button = ttk.Button(root, text="📜 See Console", command=toggle_console, style="TButton")
 console_button.pack(pady=5)
+animate_button(console_button)
 
 # Console frame
-console_frame = tk.Frame(root, bg="#fdf6f0")
+console_frame = tk.Frame(root, bg="#fef9f6")
 console_text = scrolledtext.ScrolledText(console_frame, height=10, width=56, font=("Consolas", 9))
 console_text.pack(fill="both", expand=True)
 
@@ -205,6 +281,9 @@ logfile_path = os.path.join(os.path.dirname(__file__), "VanillaPyDown.log")
 sys.stdout = ConsoleRedirector(console_text, logfile_path)
 sys.stderr = ConsoleRedirector(console_text, logfile_path)
 
-tk.Label(root, text="✨ Files are saved in your Downloads folder ✨", bg="#fdf6f0", font=small_font, fg="#777").pack(side="bottom", pady=6)
+# Footer info
+tk.Label(root, text="✨ Files are saved in your Downloads folder ✨",
+         bg="#fef9f6", font=small_font, fg="#777").pack(side="bottom", pady=3)
+tk.Label(root, text="v2.043", bg="#fef9f6", font=("Comic Sans MS", 8, "italic"), fg="#999").pack(side="bottom")
 
 root.mainloop()
