@@ -67,7 +67,7 @@ def download_youtube(url, mode, progressbar, progress_label, console_text, audio
 
         elif mode == "video":
             merge_format = video_fmt.lower()
-            if merge_format not in ["mp4", "mov", "mkv", "avi"]:
+            if merge_format not in ["mp4", "mov", "mkv", "avi", "wmv"]:
                 merge_format = "mp4"
 
             # Force AAC audio codec for video
@@ -175,7 +175,7 @@ root.geometry("500x560")
 root.resizable(False, False)
 root.configure(bg="#fef9f6")
 
-# --- Styling ---
+# --- Aesthetic Style ---
 style = ttk.Style()
 style.theme_use("clam")
 
@@ -250,7 +250,7 @@ ttk.Combobox(audio_frame, textvariable=audio_fmt_var, values=["mp3", "wav", "ogg
 video_fmt_var = tk.StringVar(value="mp4")
 video_frame = ttk.Frame(root)
 ttk.Label(video_frame, text="Video format:", background="#fef9f6").grid(row=0, column=0, padx=5)
-ttk.Combobox(video_frame, textvariable=video_fmt_var, values=["mp4", "mov", "mkv", "avi"],
+ttk.Combobox(video_frame, textvariable=video_fmt_var, values=["mp4", "mov", "mkv", "avi", "wmv"],
              width=8, state="readonly").grid(row=0, column=1)
 
 download_button = ttk.Button(root, text="⬇️ Download", command=start_download, style="TButton")
@@ -284,6 +284,6 @@ sys.stderr = ConsoleRedirector(console_text, logfile_path)
 # Footer info
 tk.Label(root, text="✨ Files are saved in your Downloads folder ✨",
          bg="#fef9f6", font=small_font, fg="#777").pack(side="bottom", pady=3)
-tk.Label(root, text="v2.043", bg="#fef9f6", font=("Comic Sans MS", 8, "italic"), fg="#999").pack(side="bottom")
+tk.Label(root, text="v2.197", bg="#fef9f6", font=("Comic Sans MS", 8, "italic"), fg="#999").pack(side="bottom")
 
 root.mainloop()
